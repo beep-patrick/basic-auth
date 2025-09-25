@@ -1,28 +1,58 @@
-# basic-auth
+## Basic Authentication Demo
 
-## Quickstart
+This project is a demo of using node.js and redis to store user credentials and control access to a rest endpoint. It is not at all ready for production, but it does demonstrate some of the main ideas. 
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the server:
-   ```bash
-   npm start
-   ```
-3. The API will be available at `http://localhost:3000/`.
-   - `GET /` returns `hello`
+## Password complexity best practices
 
-## Project Structure
-- `src/index.js`: Express REST API entrypoint
-- `.github/copilot-instructions.md`: AI agent guidance
-- `.gitignore`: Node modules and environment files
-- `package.json`: Project manifest and scripts
+- [x] Passwords should be at least 12 characters long
+- [x] Allow all printable ASCII and Unicode characters
+- [x] Avoid composition rules (e.g., requiring uppercase, numbers, symbols)
+- [ ] Block commonly used, leaked, or easily guessable passwords 
+- [ ] Prefer multi-factor authentication over single factor authentication
 
-## Conventions
-- All source code lives in `src/`
-- Use Express for HTTP endpoints
-- Extend by adding more routes in `src/`
+These password complexity requirements are based on [OWASP's Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
 
----
-See `.github/copilot-instructions.md` for agent-specific instructions.
+## Is this even a good idea?
+
+Unless authentication and identity is the core business value we are trying to deliver, I'd avoid doing credential management ourselves and use some third party cloud service provider. 
+
+If this system is being used to control access to internal tools for a business, I'd make sure that we integrate with the company's existing employee identity provider instead. That way you can more easily deal with the whole lifecycle of a user's access. For instance you can revoke access automatically when a user is no longer an employee, and you can control access based on membership to an active directory group. 
+
+Of course this is just an exercize, so I'm probably taking this too seriously :smile: .
+
+## Necessary improvements for production use
+
+- Right now the user registration endpoint is completely unauthenticated. We would need a way to controll access to user registration. Right now anyone can create a new user and use their credentials right away.
+
+- Transport security. Enforce HTTPS for all API requests. Right now all of the requests to the API, including those that have passwords in plain text, are transmitted over the wire unencrypted. This means that those passwords can be stolen by anyone who intercepts the communication. 
+
+- Access control in addition to authentication. If this service is used internally for a company, we can reduce the attack surface area substantially by making sure that only other known services can even connect to the service in the first place instead of putting it on the internet.
+
+- Add a way to revoke a user's access. Right now once you are a user, you're a user forever. 
+
+- Add a way to change your password.
+
+- Add a way to notify users that they should change their password. I wouldn't want to force people to unnecessarily rotate their credentials, but it would be pretty important to be able to request password change in the event that there was a data leak. 
+
+- Protection against DOS or DDOS attack. Right now there is nothing preventing someone from hammering this service and making it unavailable for others. 
+
+- Throttling or rate limiting (maybe exponential backoff?) for failed attempts to use basic authentication for the same user. Right now an attacker could use brute-force to guess a password.
+
+- Logging. In particular there should probably be audit logging for creation of users. 
+
+- Service health montioring. It's important to know if the service goes down, and to be able to recover. 
+
+- Backups. 
+
+- Continuous Integration, and software development processes for the repostiory. Who can make changes to this service's code? Where are bugs tracked? How do we manage vulnerabilities found in node packages or container images that are being used? If this is to be used in a production environment it needs someone or some group to be it's caretaker.
+
+- Scaling. You'd have to make sure that the service can scale up to meet the demands you put on it. You might have to consider redis connection availability, and you might have to add instances and have a load ballancer. (Or more realistically you might want to just get a third party service provider to do all of this for you so you can focus on your main business.) 
+
+## Further improvements I'd recommend
+- Use multiple factors of authentication instead of a simple username and password scheme
+
+- Use token based authentication instead of basic authentication.
+
+- If there is a UI provided for user registration, I'd suggest implementing password strength meters and user guidance to promote strong password creation.
+
+- Add a mechanism for rejecting common passwords (like 'password1234') and passwords with low entropy (like 'aaaaaaaaaaaa'). There are some libraries in the node ecosystem that can help with this including 'passablewords' and 'zxcvbn'. 
