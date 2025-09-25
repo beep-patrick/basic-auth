@@ -2,27 +2,7 @@ const app = require('../src/index');
 const request = require('supertest');
 const userStore = require('../src/userStore');
 
-jest.mock('../src/redisClient', () => {
-  let store = {};
-  return {
-    hSet: async (hash, key, value) => {
-      if (!store[hash]) store[hash] = {};
-      store[hash][key] = value;
-    },
-    hGet: async (hash, key) => {
-      return store[hash]?.[key] || null;
-    },
-    hGetAll: async (hash) => {
-      return store[hash] || {};
-    },
-    __reset: () => { store = {}; }
-  };
-});
-
-const redisClient = require('../src/redisClient');
-beforeEach(() => {
-  redisClient.__reset();
-});
+jest.mock('../src/redisClient', () => require('./redisMock'));
 
 describe('GET /', () => {
   it('should return 200 and hello', async () => {
