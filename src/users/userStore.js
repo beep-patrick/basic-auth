@@ -1,22 +1,38 @@
 const redisClient = require('../redisClient');
-const bcrypt = require('bcrypt');
-const SALT_ROUNDS = 12;
+const argon2 = require('argon2');
+const Joi = require('joi');
 
-async function saveUser(user) {
-  // Hash the password before storing. 
-  // For best practices advice see https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
-  const hashedPassword = await bcrypt.hash(user.password, SALT_ROUNDS); 
-  await redisClient.hSet('users', user.username, JSON.stringify({
-    username: user.username,
+async function saveUser(username, password) {
+  const userSchema = Joi.object({
+    username: Joi.string()
+      .alphanum()
+      .min(3)
+      .max(30)
+      .required(),
+    password: Joi.string()
+      .min(12)  // Passwords shorter than 12 characters are easy to brute-force. See https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#password-storage
+      .max(256) // Prevent extremely long passwords that could be used in denial-of-service attacks
+      .required()
+  });
+
+  const { error } = userSchema.validate({ username, password });
+  if (error) {
+    return { error, newUser: null };
+  }
+
+  const hashedPassword = await argon2.hash(password, { type: argon2.argon2id });
+  await redisClient.hSet('users', username, JSON.stringify({
+    username,
     password: hashedPassword
   }));
+  return { error: null, newUser: { username } };
 }
 
 async function verifyUser(username, password) {
   const data = await redisClient.hGet('users', username);
   if (!data) return false;
   const user = JSON.parse(data);
-  return await bcrypt.compare(password, user.password);
+  return await argon2.verify(user.password, password);
 }
 
 async function getUser(username) {

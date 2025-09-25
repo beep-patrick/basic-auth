@@ -31,13 +31,13 @@ describe('GET / (root) with Basic Auth', () => {
     // First, create a user
     await request(app)
       .post('/users')
-      .send({ username: 'user1', password: 'pass1' })
+      .send({ username: 'user1', password: 'testpass1234' })
       .expect(200);
 
     // Now, authenticate with that user
     const res = await request(app)
       .get('/')
-      .set('Authorization', encodeBasicAuth('user1', 'pass1'));
+      .set('Authorization', encodeBasicAuth('user1', 'testpass1234'));
     expect(res.statusCode).toBe(200);
     expect(res.text).toBe('hello');
   });

@@ -9,17 +9,16 @@ const userSchema = Joi.object({
 }).required().options({ allowUnknown: false });
 
 router.post('/', async (req, res) => {
-  const { error, value } = userSchema.validate(req.body);
+  let { error, value } = userSchema.validate(req.body);
   if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+    return res.status(400).json({ error });
   }
-  try {
-    await userStore.saveUser(value);
-    const newUser = await userStore.getUser(value.username);
-    res.json(newUser);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to store user.' });
+
+  ({ error, newUser } = await userStore.saveUser(value.username, value.password));
+  if (error) {
+    return res.status(400).json({ error });
   }
+  res.json(newUser);  
 });
 
 module.exports = router;
