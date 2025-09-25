@@ -2,6 +2,52 @@
 
 This project is a demo of using node.js and redis to store user credentials and control access to a rest endpoint. It is not at all ready for production, but it does demonstrate some of the main ideas. 
 
+## How to Run the App
+
+> #### 💡 Running in GitHub Codespaces
+> The easiest way to see this demo run is to use a GitHub Codespace. Codespaces provide a cloud development environment with everything pre-installed. Of course this demo will also run locally or on any server that can run a containerized application. 
+
+1. Start the app
+
+```bash
+docker-compose up -d 
+````
+
+2. This will start up the node.js service as well as a redis instance in a separate container. Once started, the app will be available at `http://localhost:3000`.
+
+3. You can make REST requests using curl on the terminal, or with a tool like postman.
+
+#### Example: Create a User
+
+To create a user, send a POST request to `/users` with a JSON body containing `username` and `password`:
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username": "alice", "password": "SuperSecretPassword123"}' \
+  http://localhost:3000/users
+````
+
+#### Example: Access the Root Endpoint that requires basic authentication
+
+The root endpoint (/) is protected by basic authentication. Use your new credentials to access it like this:
+
+```bash
+curl -u alice:SuperSecretPassword123 http://localhost:3000/
+````
+
+If authentication succeeds, you'll receive a welcome message and a 200 response. If not, you'll get a 401 error response. 
+
+---
+
+## Is this even a good idea?
+
+Unless authentication and identity is the core business value we are trying to deliver, I'd avoid doing credential management ourselves and use some third party cloud service provider. 
+
+If this system is being used to control access to internal tools for a business, I'd make sure that we integrate with the company's existing employee identity provider instead. That way you can more easily deal with the whole lifecycle of a user's access. For instance you can revoke access automatically when a user is no longer an employee, and you can control access based on membership to an active directory group. 
+
+Of course this is just an exercize, so I'm probably taking this too seriously 😊.
+
 ## Password complexity best practices
 
 - [x] Passwords should be at least 12 characters long
@@ -11,14 +57,6 @@ This project is a demo of using node.js and redis to store user credentials and 
 - [ ] Prefer multi-factor authentication over single factor authentication
 
 These password complexity requirements are based on [OWASP's Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
-
-## Is this even a good idea?
-
-Unless authentication and identity is the core business value we are trying to deliver, I'd avoid doing credential management ourselves and use some third party cloud service provider. 
-
-If this system is being used to control access to internal tools for a business, I'd make sure that we integrate with the company's existing employee identity provider instead. That way you can more easily deal with the whole lifecycle of a user's access. For instance you can revoke access automatically when a user is no longer an employee, and you can control access based on membership to an active directory group. 
-
-Of course this is just an exercize, so I'm probably taking this too seriously :smile: .
 
 ## Necessary improvements for production use
 
@@ -55,4 +93,4 @@ Of course this is just an exercize, so I'm probably taking this too seriously :s
 
 - If there is a UI provided for user registration, I'd suggest implementing password strength meters and user guidance to promote strong password creation.
 
-- Add a mechanism for rejecting common passwords (like 'password1234') and passwords with low entropy (like 'aaaaaaaaaaaa'). There are some libraries in the node ecosystem that can help with this including 'passablewords' and 'zxcvbn'. 
+- Add a mechanism for rejecting common passwords (like 'password1234') and passwords with low entropy (like 'aaaaaaaaaaaa'). There are some libraries in the node ecosystem that can help with this including 'passablewords' and 'zxcvbn'.
