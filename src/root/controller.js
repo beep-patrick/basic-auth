@@ -1,7 +1,8 @@
 const express = require('express');
+const basicAuth = require('../middleware/basicAuth');
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', basicAuth, (req, res) => {
   res.send('hello');
 });
 

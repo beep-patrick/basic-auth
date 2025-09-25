@@ -15,7 +15,8 @@ router.post('/', async (req, res) => {
   }
   try {
     await userStore.saveUser(value);
-    res.json(value);
+    const newUser = await userStore.getUser(value.username);
+    res.json(newUser);
   } catch (err) {
     res.status(500).json({ error: 'Failed to store user.' });
   }
