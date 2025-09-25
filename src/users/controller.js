@@ -1,7 +1,6 @@
 const express = require('express');
 const Joi = require('joi');
-const userStore = require('../userStore');
-
+const userStore = require('./userStore');
 const router = express.Router();
 
 const userSchema = Joi.object({
