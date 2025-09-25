@@ -1,5 +1,28 @@
-const request = require('supertest');
 const app = require('../src/index');
+const request = require('supertest');
+const userStore = require('../src/userStore');
+
+jest.mock('../src/redisClient', () => {
+  let store = {};
+  return {
+    hSet: async (hash, key, value) => {
+      if (!store[hash]) store[hash] = {};
+      store[hash][key] = value;
+    },
+    hGet: async (hash, key) => {
+      return store[hash]?.[key] || null;
+    },
+    hGetAll: async (hash) => {
+      return store[hash] || {};
+    },
+    __reset: () => { store = {}; }
+  };
+});
+
+const redisClient = require('../src/redisClient');
+beforeEach(() => {
+  redisClient.__reset();
+});
 
 describe('GET /', () => {
   it('should return 200 and hello', async () => {
@@ -40,5 +63,23 @@ describe('POST /users', () => {
       .send({ username: 'user1', password: 'pass1', email: 'test@example.com' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error');
+  });
+});
+
+describe('POST /users integration with store', () => {
+
+  it('should add a new user to the store', async () => {
+    const user = { username: 'testuser', password: 'testpass' };
+    await request(app).post('/users').send(user).expect(200);
+
+    const storedUser = await userStore.getUser('testuser');
+    expect(storedUser).toEqual(user);
+  });
+
+  it('should not add user if validation fails', async () => {
+    await request(app).post('/users').send({ username: 'baduser' }).expect(400);
+
+    const storedUser = await userStore.getUser('baduser');
+    expect(storedUser).toBeNull();
   });
 });
