@@ -20,6 +20,21 @@ async function saveUser(username, password) {
     return { error, newUser: null };
   }
 
+  // Enforce unique usernames
+  const existing = await redisClient.hGet('users', username);
+  if (existing) {
+    return {
+      error: { details: [
+        {
+          message: 'Username already exists',
+          path: ['username'],
+          type: 'username.unique',
+          context: { value: username }
+        }
+      ]}, newUser: null
+    };
+  }
+
   const hashedPassword = await argon2.hash(password, { type: argon2.argon2id });
   await redisClient.hSet('users', username, JSON.stringify({
     username,

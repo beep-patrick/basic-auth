@@ -78,4 +78,23 @@ describe('POST /users', () => {
     const storedUser = await userStore.getUser('toolong');
     expect(storedUser).toBeNull();
   });
+
+  it('should not allow duplicate usernames', async () => {
+    const user = { username: 'dupeuser', password: 'testpass1234' };
+    // First creation should succeed
+    const res1 = await request(app).post('/users').send(user);
+    expect(res1.statusCode).toBe(200);
+    expect(res1.body).toEqual({ username: user.username });
+
+    // Second creation should fail
+    const res2 = await request(app).post('/users').send(user);
+    expect(res2.statusCode).toBe(400);
+    expect(res2.body).toHaveProperty('error');
+    expect(res2.body.error.details[0].type).toBe('username.unique');
+    expect(res2.body.error.details[0].message).toMatch(/already exists/);
+
+    // The stored user should still be the original
+    const storedUser = await userStore.getUser(user.username);
+    expect(storedUser).toEqual({ username: user.username });
+  });
 });
