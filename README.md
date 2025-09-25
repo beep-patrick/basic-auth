@@ -5,7 +5,7 @@ This project is a demo of using node.js and redis to store user credentials and 
 ## How to Run the App
 
 > #### 💡 Running in GitHub Codespaces
-> The easiest way to see this demo run is to use a GitHub Codespace. Codespaces provide a cloud development environment with everything pre-installed. Of course this demo will also run locally or on any server that can run a containerized application. 
+> The easiest way to see this demo run is to use a GitHub Codespace. Codespaces provide a cloud development environment with everything pre-installed. You can simply visit the codespace for this project [here](https://github.com/codespaces/stunning-chainsaw-r4v9p7r9wg6q3p457?editor=web). Of course this demo will also run locally or on any server that can run a containerized application. 
 
 1. Start the app
 
