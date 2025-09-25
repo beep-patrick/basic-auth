@@ -4,20 +4,19 @@ This project is a demo of using node.js and redis to store user credentials and 
 
 ## How to Run the App
 
-> #### 💡 Running in GitHub Codespaces
-> The easiest way to see this demo run is to use a GitHub Codespace. Codespaces provide a cloud development environment with everything pre-installed. 
-> [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/beep-patrick/basic-auth)
-> Of course this demo will also run locally or on any server that can run a containerized application. 
+1. 
+[![Open the project in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/beep-patrick/basic-auth)
+Alternatively you can clone this repository and run this project anywhere you can run a containerized application. 
 
-1. Start the app
+2. Start the app
 
 ```bash
 docker-compose up -d 
 ````
 
-2. This will start up the node.js service as well as a redis instance in a separate container. Once started, the app will be available at `http://localhost:3000`.
+3. This will start up the node.js service as well as a redis instance in a separate container. Once started, the app will be available at `http://localhost:3000`.
 
-3. You can make REST requests using curl on the terminal, or with a tool like postman.
+4. You can make REST requests using curl on the terminal, or with a tool like postman.
 
 #### Example: Create a User
 
