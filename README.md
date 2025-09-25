@@ -4,8 +4,8 @@ This project is a demo of using node.js and redis to store user credentials and 
 
 ## How to Run the App
 
-1. 
-[![Open the project in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/beep-patrick/basic-auth)
+1. [![Open the project in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/beep-patrick/basic-auth)
+
 Alternatively you can clone this repository and run this project anywhere you can run a containerized application. 
 
 2. Start the app
